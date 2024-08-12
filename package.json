@@ -1,0 +1,20 @@
+{
+  "name": "learn-dutch-provinces",
+  "version": "0.0.1",
+  "main": "src/app.ts",
+  "repository": "https://github.com/silh/learn-dutch-provinces.git",
+  "author": "Ilia Beliaev",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
+  },
+  "dependencies": {
+    "@types/node": "22.2.0",
+    "typescript": "5.5.4"
+  },
+  "devDependencies": {
+    "vite": "5.4.0"
+  }
+}
