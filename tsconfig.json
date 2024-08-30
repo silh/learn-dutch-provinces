@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "es2016",
-    "lib": ["es2019"],
-    "module": "commonjs",
+    "lib": ["ES2022", "DOM"],
+    "module": "ES2022",
     "rootDir": "src",
     "outDir": "./bin",
     "esModuleInterop": true,
@@ -10,5 +10,6 @@
     "strict": true,
     "noImplicitAny": true,
     "skipLibCheck": true
-  }
+  },
+  "include": ["src/**/*"]
 }
