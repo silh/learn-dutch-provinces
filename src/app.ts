@@ -1,60 +1,97 @@
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { FeatureCollection } from "geojson";
+import "ol/ol.css";
+import { Map, Overlay, View } from "ol";
+import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
+import { OSM, Vector as VectorSource } from "ol/source";
+import { GeoJSON } from "ol/format";
+import { Style, Stroke, Fill, Icon } from "ol/style";
+import { fromLonLat } from "ol/proj";
+import { Select } from "ol/interaction";
+import { click } from "ol/events/condition";
 
 async function load() {
-  const map = L.map("map").setView([52.092876, 5.10448], 7);
-  L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 7,
-    minZoom: 7,
-    attribution:
-      '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-  }).addTo(map);
+  const select = new Select({
+    condition: click,
+    style: null,
+  });
+
+  const map = new Map({
+    target: "map",
+    layers: [
+      new TileLayer({
+        source: new OSM(),
+      }),
+      new VectorLayer({
+        source: new VectorSource({
+          url: `./geojson/provinces.json`,
+          format: new GeoJSON(),
+        }),
+        style: new Style({
+          stroke: new Stroke({
+            color: "black",
+            width: 1,
+          }),
+          fill: new Fill({
+            color: "rgba(51, 136, 255, 0.5)",
+          }),
+        }),
+      }),
+    ],
+    view: new View({
+      projection: "EPSG:3857",
+      center: fromLonLat([5.10448, 52.092876]),
+      zoom: 7, // TODO add optimal zoom level
+    }),
+    interactions: [select],
+  
+  });
 
   const provinces: string[] = [
     "Drenthe",
     "Flevoland",
-    "Friesland",
+    // "Friesland",
+    "Frisia",
     "Gelderland",
     "Groningen",
     "Limburg",
-    "Noord-Brabant",
-    "Noord-Holland",
+    // "Noord-Brabant",
+    "North Brabant",
+    // "Noord-Holland",
+    "North Holland",
     "Overijssel",
-    "Zuid-Holland",
+    // "Zuid-Holland",
+    "South Holland",
     "Utrecht",
     "Zeeland",
   ];
-  const promises: Promise<void>[] = [];
+
   let currentProvince = (Math.random() * provinces.length) | 0;
   const questionElement = document.createElement("div");
   questionElement.className = "overlay";
-  for (const province of provinces) {
-    promises.push(
-      (async () => {
-        const json: FeatureCollection = await import(
-          `./geojson/${province.toLowerCase()}.json`
-        );
-        L.geoJSON(json.features[0], {
-          onEachFeature: (feature, layer) => {
-            layer.on("click", (e) => {
-              if (provinces[currentProvince] === province) {
-                const text = document.createElement("div");
-                text.textContent = "🚀";
-                L.popup().setLatLng(e.latlng).setContent(text).openOn(map);
-                
-                currentProvince = (Math.random() * provinces.length) | 0;
-                questionElement.textContent = provinces[currentProvince];
-              }
-            });
-          },
-        }).addTo(map);
-      })()
-    );
-  }
-  Promise.all(promises);
+
+  const featureOverlay = new VectorLayer({
+    source: new VectorSource(),
+    map: map,
+    style: new Style({
+      fill: new Fill({
+        color: "rgba(255, 0, 0, 0.5)",
+      }),
+    }),
+  });
+
+  select.on("select", async (event) => {
+    const selectedFeature = event.selected[0];
+    if (selectedFeature.get("name") === provinces[currentProvince]) {
+      currentProvince = (Math.random() * provinces.length) | 0;
+      questionElement.textContent = provinces[currentProvince];
+      featureOverlay.getSource()?.addFeature(selectedFeature);
+      setTimeout(() => {
+        featureOverlay.getSource()?.removeFeature(selectedFeature);
+      }, 500);
+    }
+  });
+
   questionElement.textContent = provinces[currentProvince];
-  map.getContainer().appendChild(questionElement);
+  document.body.appendChild(questionElement);
 }
 
 load();
