@@ -42,7 +42,6 @@ async function load() {
       zoom: 7, // TODO add optimal zoom level
     }),
     interactions: [select],
-  
   });
 
   const provinces: string[] = [
@@ -86,8 +85,9 @@ async function load() {
       featureOverlay.getSource()?.addFeature(selectedFeature);
       setTimeout(() => {
         featureOverlay.getSource()?.removeFeature(selectedFeature);
-      }, 500);
+      }, 300);
     }
+    // TODO fix 2 in a row problem
   });
 
   questionElement.textContent = provinces[currentProvince];
