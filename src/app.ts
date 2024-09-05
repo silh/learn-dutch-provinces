@@ -66,6 +66,8 @@ async function load() {
   let currentProvince = (Math.random() * provinces.length) | 0;
   const questionElement = document.createElement("div");
   questionElement.className = "overlay";
+  questionElement.textContent = provinces[currentProvince];
+  document.body.appendChild(questionElement);
 
   const featureOverlay = new VectorLayer({
     source: new VectorSource(),
@@ -87,11 +89,8 @@ async function load() {
         featureOverlay.getSource()?.removeFeature(selectedFeature);
       }, 300);
     }
-    // TODO fix 2 in a row problem
+    select.getFeatures().clear();
   });
-
-  questionElement.textContent = provinces[currentProvince];
-  document.body.appendChild(questionElement);
 }
 
 load();
